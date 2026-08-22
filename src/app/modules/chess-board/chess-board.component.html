@@ -3,7 +3,15 @@
     <div
       *ngFor="let piece of row; let y = index"
       class="square"
-      [ngClass]="{ dark: isSquareDark(x, y), light: !isSquareDark(x, y) }"
-    ></div>
+      [ngClass]="{
+        dark: isSquareDark(x, y),
+        light: !isSquareDark(x, y),
+        selected: isSquareSelected(x, y),
+      }"
+      (click)="selectingPiece(x, y)"
+    >
+      <div [ngClass]="{ 'safe-square': isSquareSafeForSelectedPiece(x, y) }"></div>
+      <img *ngIf="piece" [src]="pieceImagePaths[piece]" [alt]="piece" class="piece" />
+    </div>
   </div>
 </div>

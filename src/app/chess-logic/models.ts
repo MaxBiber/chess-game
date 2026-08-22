@@ -22,3 +22,20 @@ export enum FENChar {
   BlackQueen = 'q',
   BlackKing = 'k',
 }
+
+export const pieceImagePaths: Readonly<Partial<Record<FENChar, string>>> = {
+  [FENChar.BlackKing]: 'assets/pieces/black king.png',
+  [FENChar.WhiteKing]: 'assets/pieces/white king.png',
+  [FENChar.BlackQueen]: 'assets/pieces/black queen.svg',
+  [FENChar.WhiteQueen]: 'assets/pieces/white queen.svg',
+  [FENChar.BlackRook]: 'assets/pieces/black rook.svg',
+  [FENChar.WhiteRook]: 'assets/pieces/white rook.svg',
+  [FENChar.BlackBishop]: 'assets/pieces/black bishop.svg',
+  [FENChar.WhiteBishop]: 'assets/pieces/white bishop.svg',
+  [FENChar.BlackKnight]: 'assets/pieces/black knight.svg',
+  [FENChar.WhiteKnight]: 'assets/pieces/white knight.svg',
+  [FENChar.BlackPawn]: 'assets/pieces/black pawn.svg',
+  [FENChar.WhitePawn]: 'assets/pieces/white pawn.svg',
+};
+
+export type SafeSquares = Map<string, Coords[]>;
