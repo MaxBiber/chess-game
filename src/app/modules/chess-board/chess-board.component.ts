@@ -1,9 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+
 import { ChessBoard } from '../../chess-logic/chess-board';
 import { Color, FENChar } from '../../chess-logic/models';
 
 @Component({
-  imports: [],
+  imports: [CommonModule],
   selector: 'app-chess-board',
   styleUrl: './chess-board.component.css',
   templateUrl: './chess-board.component.html',
@@ -13,5 +15,9 @@ export class ChessBoardComponent {
   public chessBoardView: (FENChar | null)[][] = this.chessBoard.chessBoardView;
   public get playerColor(): Color {
     return this.chessBoard.playerColor;
+  }
+
+  public isSquareDark(x: number, y: number): boolean {
+    return ChessBoard.isSquareDark(x, y);
   }
 }
