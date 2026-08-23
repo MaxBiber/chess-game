@@ -7,6 +7,8 @@
         dark: isSquareDark(x, y),
         light: !isSquareDark(x, y),
         selected: isSquareSelected(x, y),
+        'last-move': isSquareLastMove(x, y),
+        'king-in-check': isSquareChecked(x, y),
       }"
       (click)="move(x, y)"
     >

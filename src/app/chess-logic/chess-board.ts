@@ -1,4 +1,5 @@
-import { Color, Coords, FENChar, SafeSquares } from './models';
+import { provideExperimentalWebMcpForms } from '@angular/forms/signals';
+import { CheckState, Color, Coords, FENChar, LastMove, SafeSquares } from './models';
 import { Bishop } from './pieces/bishop';
 import { King } from './pieces/king';
 import { Knight } from './pieces/knight';
@@ -12,6 +13,8 @@ export class ChessBoard {
   private readonly chessBoardSize: number = 8;
   private _playerColor = Color.White;
   private _safeSquares: SafeSquares;
+  private _lastMove: LastMove | undefined;
+  private _checkState: CheckState = { isInCheck: false };
 
   constructor() {
     this.chessBoard = [
@@ -77,6 +80,14 @@ export class ChessBoard {
     return this._safeSquares;
   }
 
+  public get lastMove(): LastMove | undefined {
+    return this._lastMove;
+  }
+
+  public get checkState(): CheckState {
+    return this._checkState;
+  }
+
   public static isSquareDark(x: number, y: number): boolean {
     return (x % 2 === 0 && y % 2 === 0) || (x % 2 === 1 && y % 2 === 1);
   }
@@ -85,7 +96,7 @@ export class ChessBoard {
     return x >= 0 && x < this.chessBoardSize && y >= 0 && y < this.chessBoardSize;
   }
 
-  public isInCheck(playerColor: Color): boolean {
+  public isInCheck(playerColor: Color, checkingCurrentPosition: boolean): boolean {
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
         const piece: Piece | null = this.chessBoard[x][y];
@@ -102,11 +113,20 @@ export class ChessBoard {
             if (piece instanceof Pawn && dy === 0) continue;
 
             const attackedPiece: Piece | null = this.chessBoard[newX][newY];
-            if (attackedPiece instanceof King && attackedPiece.color === playerColor) return true;
+            if (attackedPiece instanceof King && attackedPiece.color === playerColor) {
+              if (checkingCurrentPosition) this._checkState = { isInCheck: true, x: newX, y: newY };
+
+              return true;
+            }
           } else {
             while (this.areCoordsValid(newX, newY)) {
               const attackedPiece: Piece | null = this.chessBoard[newX][newY];
-              if (attackedPiece instanceof King && attackedPiece.color === playerColor) return true;
+              if (attackedPiece instanceof King && attackedPiece.color === playerColor) {
+                if (checkingCurrentPosition)
+                  this._checkState = { isInCheck: true, x: newX, y: newY };
+
+                return true;
+              }
 
               if (attackedPiece !== null) break;
 
@@ -117,6 +137,7 @@ export class ChessBoard {
         }
       }
     }
+    if (checkingCurrentPosition) this._checkState = { isInCheck: false };
     return false;
   }
 
@@ -132,10 +153,10 @@ export class ChessBoard {
     if (newPiece && newPiece.color === piece.color) return false;
 
     // simulate position
-    this.chessBoard[newX][newY] = null;
-    this.chessBoard[prevX][prevY] = piece;
+    this.chessBoard[prevX][prevY] = null;
+    this.chessBoard[newX][newY] = piece;
 
-    const ispositionSafe: boolean = !this.isInCheck(piece.color);
+    const ispositionSafe: boolean = !this.isInCheck(piece.color, false);
 
     //restore position back
     this.chessBoard[prevX][prevY] = piece;
@@ -194,11 +215,55 @@ export class ChessBoard {
             }
           }
         }
+        if (piece instanceof King) {
+          if (this.canCastle(piece, true)) pieceSafeSquares.push({ x, y: 6 });
+
+          if (this.canCastle(piece, false)) pieceSafeSquares.push({ x, y: 2 });
+        }
         if (pieceSafeSquares.length) safeSquares.set(x + ',' + y, pieceSafeSquares);
       }
     }
     return safeSquares;
   }
+
+  private canCastle(king: King, kingSideCastle: boolean): boolean {
+    if (king.hasMoved) return false;
+
+    const kingPositionX: number = king.color === Color.White ? 0 : 7;
+    const kingPositionY: number = 4;
+    const rookPositionX: number = kingPositionX;
+    const rookPositionY: number = kingSideCastle ? 7 : 0;
+    const rook: Piece | null = this.chessBoard[rookPositionX][rookPositionY];
+
+    if (!(rook instanceof Rook) || rook.hasMoved || this._checkState.isInCheck) return false;
+    const firstNextKingPositionY: number = kingPositionY + (kingSideCastle ? 1 : -1);
+    const secondNextKingPositionY: number = kingPositionY + (kingSideCastle ? 2 : -2);
+
+    if (
+      this.chessBoard[kingPositionX][firstNextKingPositionY] ||
+      this.chessBoard[kingPositionX][secondNextKingPositionY]
+    )
+      return false;
+    if (!kingSideCastle && this.chessBoard[kingPositionX][1]) return false;
+
+    return (
+      this.isPositionSafeAfterMove(
+        king,
+        kingPositionX,
+        kingPositionY,
+        kingPositionX,
+        firstNextKingPositionY,
+      ) &&
+      this.isPositionSafeAfterMove(
+        king,
+        kingPositionX,
+        kingPositionY,
+        kingPositionX,
+        secondNextKingPositionY,
+      )
+    );
+  }
+
   public move(prevX: number, prevY: number, newX: number, newY: number): void {
     if (!this.areCoordsValid(prevX, prevY) || !this.areCoordsValid(newX, newY)) return;
     const piece: Piece | null = this.chessBoard[prevX][prevY];
@@ -216,11 +281,34 @@ export class ChessBoard {
       !piece.hasMoved
     )
       piece.hasMoved = true;
+
+    this.handingSpecialMoves(piece, prevX, prevY, newX, newY);
     //update the board
     this.chessBoard[prevX][prevY] = null;
     this.chessBoard[newX][newY] = piece;
 
+    this._lastMove = { prevX, prevY, currX: newX, currY: newY, piece };
     this._playerColor = this._playerColor === Color.White ? Color.Black : Color.White;
+    this.isInCheck(this.playerColor, true);
     this._safeSquares = this.findSafeSquares();
+  }
+  private handingSpecialMoves(
+    piece: Piece,
+    prevX: number,
+    prevY: number,
+    newX: number,
+    newY: number,
+  ): void {
+    if (piece instanceof King && Math.abs(newY - prevY) === 2) {
+      //newY > prevY === kig side castle
+
+      const rookPositionX: number = prevX;
+      const rookPositionY: number = newY > prevY ? 7 : 0;
+      const rook = this.chessBoard[rookPositionX][rookPositionY] as Rook;
+      const rookNewPositionY: number = newY > prevY ? 5 : 3;
+      this.chessBoard[rookPositionX][rookPositionY] = null;
+      this.chessBoard[rookPositionX][rookNewPositionY] = rook;
+      rook.hasMoved = true;
+    }
   }
 }

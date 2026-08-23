@@ -1,3 +1,5 @@
+import { Piece } from './pieces/piece';
+
 export enum Color {
   White,
   Black,
@@ -23,7 +25,7 @@ export enum FENChar {
   BlackKing = 'k',
 }
 
-export const pieceImagePaths: Readonly<Partial<Record<FENChar, string>>> = {
+export const pieceImagePaths: Readonly<Record<FENChar, string>> = {
   [FENChar.BlackKing]: 'assets/pieces/black king.png',
   [FENChar.WhiteKing]: 'assets/pieces/white king.png',
   [FENChar.BlackQueen]: 'assets/pieces/black queen.svg',
@@ -39,3 +41,23 @@ export const pieceImagePaths: Readonly<Partial<Record<FENChar, string>>> = {
 };
 
 export type SafeSquares = Map<string, Coords[]>;
+
+export type LastMove = {
+  piece: Piece;
+  prevX: number;
+  prevY: number;
+  currX: number;
+  currY: number;
+};
+
+type KingChecked = {
+  isInCheck: true;
+  x: number;
+  y: number;
+};
+
+type KingNotChecked = {
+  isInCheck: false;
+};
+
+export type CheckState = KingChecked | KingNotChecked;
