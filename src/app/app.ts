@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { ChessBoardComponent } from './modules/chess-board/chess-board.component';
 
 @Component({
-  imports: [RouterOutlet, ChessBoardComponent],
+  imports: [ChessBoardComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.component.html',
