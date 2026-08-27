@@ -5,6 +5,7 @@ import {
   StockfishQueryParams,
   StockfishResponse,
   ComputerConfiguration,
+  stockfishLevels,
 } from './models';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { FENChar, Color } from '../../chess-logic/models';
@@ -49,8 +50,7 @@ export class StockfishService {
   public getBestMove(fen: string): Observable<ChessMove> {
     const queryParams: StockfishQueryParams = {
       fen,
-      depth: '13',
-      mode: 'bestmove',
+      depth: stockfishLevels[this.computerConfiguration$.value.level],
     };
 
     let params = new HttpParams().appendAll(queryParams);

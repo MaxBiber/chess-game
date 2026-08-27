@@ -2,8 +2,7 @@ import { Color, FENChar } from '../../chess-logic/models';
 
 export type StockfishQueryParams = {
   fen: string;
-  depth: string;
-  mode: string;
+  depth: number;
 };
 
 export type ChessMove = {

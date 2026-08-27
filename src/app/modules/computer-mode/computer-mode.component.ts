@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { StockfishService } from './stockfish.service';
 import { ChessBoardService } from '../chess-board/chess-board.service';
 import { firstValueFrom, Subscription } from 'rxjs';
+import { Color } from '../../chess-logic/models';
 
 @Component({
   imports: [CommonModule],
@@ -14,7 +15,7 @@ import { firstValueFrom, Subscription } from 'rxjs';
 export class ComputerModeComponent extends ChessBoardComponent implements OnInit, OnDestroy {
   private subscription$ = new Subscription();
   constructor(private stockfishService: StockfishService) {
-    super(inject(chessBoardService));
+    super(inject(ChessBoardService));
   }
   public ngOnInit(): void {
     const chessBoardStateSubscribtion$: Subscription =
@@ -23,7 +24,7 @@ export class ComputerModeComponent extends ChessBoardComponent implements OnInit
           const player: string = FENChar.split(' ')[1];
           if (player === 'w') return;
           const { prevX, prevY, newX, newY, promotedPiece } = await firstValueFrom(
-            this.stockfishService.getBestMove(FEN),
+            this.stockfishService.getBestMove(FENChar),
           );
           this.updateBoard(prevX, prevY, newX, newY, promotedPiece);
         },

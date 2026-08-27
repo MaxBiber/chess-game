@@ -130,15 +130,21 @@ export class ChessBoardComponent {
     }
 
     const { x: prevX, y: prevY } = this.selectedSquare;
-    this.updateBoard(prevX, prevY, newX, newY);
+    this.updateBoard(prevX, prevY, newX, newY, this.promotedPiece);
   }
 
-  protected updateBoard(prevX: number, prevY: number, newX: number, newY: number): void {
-    this.chessBoard.move(prevX, prevY, newX, newY, this.promotedPiece);
+  protected updateBoard(
+    prevX: number,
+    prevY: number,
+    newX: number,
+    newY: number,
+    promotedPiece: FENChar | null,
+  ): void {
+    this.chessBoard.move(prevX, prevY, newX, newY, promotedPiece);
     this.chessBoardView = this.chessBoard.chessBoardView;
-    this.checkState = this.chessBoard.checkState;
-    this.lastMove = this.chessBoard.lastMove;
+    this.markLastMoveAndCheckState(this.chessBoard.lastMove, this.chessBoard.checkState);
     this.unmarkingPreviouslySelectedAndSafeSquares();
+    this.chessBoardService.chessBoardState$.next(this.chessBoard.boardAsFEN);
   }
 
   public promotePiece(piece: FENChar): void {
@@ -146,7 +152,7 @@ export class ChessBoardComponent {
     this.promotedPiece = piece;
     const { x: newX, y: newY } = this.promotionCoords;
     const { x: prevX, y: prevY } = this.selectedSquare;
-    this.updateBoard(prevX, prevY, newX, newY);
+    this.updateBoard(prevX, prevY, newX, newY, this.promotedPiece);
   }
 
   public closePawnPromotionDialog(): void {
@@ -156,6 +162,10 @@ export class ChessBoardComponent {
   public move(x: number, y: number): void {
     this.selectingPiece(x, y);
     this.placingPiece(x, y);
+  }
+  private markLastMoveAndCheckState(lastMove: LastMove | undefined, checkState: CheckState): void {
+    this.lastMove = lastMove;
+    this.checkState = checkState;
   }
 
   private isWrongPieceSelected(piece: FENChar): boolean {
