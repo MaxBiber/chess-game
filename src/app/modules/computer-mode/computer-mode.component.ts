@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ChessBoardComponent } from '../chess-board/chess-board.component';
 import { CommonModule } from '@angular/common';
 import { StockfishService } from './stockfish.service';
@@ -14,23 +14,40 @@ import { Color } from '../../chess-logic/models';
 })
 export class ComputerModeComponent extends ChessBoardComponent implements OnInit, OnDestroy {
   private subscription$ = new Subscription();
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(private stockfishService: StockfishService) {
     super(inject(ChessBoardService));
   }
+
   public ngOnInit(): void {
-    const chessBoardStateSubscribtion$: Subscription =
-      this.chessBoardService.chessBoardState$.subscribe({
-        next: async (FENChar: string) => {
-          const player: string = FENChar.split(' ')[1];
-          if (player === 'w') return;
-          const { prevX, prevY, newX, newY, promotedPiece } = await firstValueFrom(
-            this.stockfishService.getBestMove(FENChar),
-          );
-          this.updateBoard(prevX, prevY, newX, newY, promotedPiece);
+    const computerConfiSubscription$: Subscription =
+      this.stockfishService.computerConfiguration$.subscribe({
+        next: (computerConfiguration) => {
+          if (computerConfiguration.color === Color.White) this.flipBoard();
         },
       });
-    this.subscription$.add(chessBoardStateSubscribtion$);
+    const chessBoardStateSubscription$: Subscription =
+      this.chessBoardService.chessBoardState$.subscribe({
+        next: async (FEN: string) => {
+          if (this.chessBoard.isGameOver()) {
+            chessBoardStateSubscription$.unsubscribe();
+            return;
+          }
+          const player: Color = FEN.split(' ')[1] === 'w' ? Color.White : Color.Black;
+          if (player !== this.stockfishService.computerConfiguration$.value.color) return;
+
+          const { prevX, prevY, newX, newY, promotedPiece } = await firstValueFrom(
+            this.stockfishService.getBestMove(FEN),
+          );
+          this.updateBoard(prevX, prevY, newX, newY, promotedPiece);
+          this.cdr.detectChanges();
+        },
+      });
+    this.subscription$.add(chessBoardStateSubscription$);
+    this.subscription$.add(computerConfiSubscription$);
   }
+
   public ngOnDestroy(): void {
     this.subscription$.unsubscribe();
   }

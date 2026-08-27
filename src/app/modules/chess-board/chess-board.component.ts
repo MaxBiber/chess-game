@@ -22,7 +22,7 @@ import {
 })
 export class ChessBoardComponent {
   public pieceImagePaths = pieceImagePaths;
-  private chessBoard = new ChessBoard();
+  protected chessBoard = new ChessBoard();
   public chessBoardView: (FENChar | null)[][] = this.chessBoard.chessBoardView;
   public get playerColor(): Color {
     return this.chessBoard.playerColor;

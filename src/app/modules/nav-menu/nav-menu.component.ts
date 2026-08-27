@@ -2,12 +2,19 @@ import { Component } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { PlayAgainstComputerDialogComponent } from '../play-against-computer-dialog/play-against-computer-dialog.component';
 
 @Component({
   selector: 'app-nav-menu',
   styleUrl: './nav-menu.component.css',
   templateUrl: './nav-menu.component.html',
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, RouterModule],
+  imports: [MatToolbarModule, MatButtonModule, RouterModule, MatDialogModule],
 })
-export class NavMenuComponent {}
+export class NavMenuComponent {
+  constructor(private dialog: MatDialog) {}
+  public playAgainstComputer(): void {
+    this.dialog.open(PlayAgainstComputerDialogComponent);
+  }
+}

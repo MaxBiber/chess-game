@@ -5,6 +5,10 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/app/modules/computer-mode/computer-mode.component.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/app/modules/computer-mode/computer-mode.component.ts",
+    "src/app/modules/play-against-computer-dialog/play-against-computer-dialog.component.ts"
+  ],
   "exclude": ["src/**/*.spec.ts"]
 }
