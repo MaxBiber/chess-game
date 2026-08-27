@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { SelectedSquare } from './models';
+import { ChessBoardService } from './chess-board.service';
 
 import { ChessBoard } from '../../chess-logic/chess-board';
 import {
@@ -50,6 +51,8 @@ export class ChessBoardComponent {
   }
 
   public flipMode: boolean = false;
+
+  constructor(protected chessBoardService: ChessBoardService) {}
 
   public flipBoard(): void {
     this.flipMode = !this.flipMode;
@@ -130,7 +133,7 @@ export class ChessBoardComponent {
     this.updateBoard(prevX, prevY, newX, newY);
   }
 
-  private updateBoard(prevX: number, prevY: number, newX: number, newY: number): void {
+  protected updateBoard(prevX: number, prevY: number, newX: number, newY: number): void {
     this.chessBoard.move(prevX, prevY, newX, newY, this.promotedPiece);
     this.chessBoardView = this.chessBoard.chessBoardView;
     this.checkState = this.chessBoard.checkState;

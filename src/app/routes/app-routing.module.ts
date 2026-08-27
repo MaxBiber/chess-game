@@ -1,0 +1,22 @@
+import { Routes } from '@angular/router';
+
+import { ChessBoardComponent } from '../modules/chess-board/chess-board.component';
+import { ComputerModeComponent } from '../modules/computer-mode/computer-mode.component';
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'against-friend',
+    pathMatch: 'full',
+  },
+  {
+    path: 'against-friend',
+    component: ChessBoardComponent,
+    title: 'Play against friend',
+  },
+  {
+    path: 'against-computer',
+    component: ComputerModeComponent,
+    title: 'Play against computer',
+  },
+];
