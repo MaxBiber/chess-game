@@ -1,5 +1,5 @@
 import { provideExperimentalWebMcpForms } from '@angular/forms/signals';
-import { CheckState, Color, Coords, FENChar, LastMove, SafeSquares } from './models';
+import { CheckState, Color, Coords, FENChar, LastMove, MoveType, SafeSquares } from './models';
 import { Bishop } from './pieces/bishop';
 import { King } from './pieces/king';
 import { Knight } from './pieces/knight';
@@ -342,8 +342,11 @@ export class ChessBoard {
       !piece.hasMoved
     )
       piece.hasMoved = true;
+    const moveType = new Set<MoveType>();
 
     const isPieceTaken: boolean = this.chessBoard[newX][newY] !== null;
+    if (isPieceTaken) moveType.add(MoveType.Capture);
+
     if (piece instanceof Pawn || isPieceTaken) this.fiftyMoveRuleCounter = 0;
     else this.fiftyMoveRuleCounter += 0.5;
 
@@ -357,7 +360,7 @@ export class ChessBoard {
 
     this.chessBoard[prevX][prevY] = null;
 
-    this._lastMove = { prevX, prevY, currX: newX, currY: newY, piece };
+    this._lastMove = { prevX, prevY, currX: newX, currY: newY, piece, moveType };
     this._playerColor = this._playerColor === Color.White ? Color.Black : Color.White;
     this.isInCheck(this.playerColor, true);
     this._safeSquares = this.findSafeSquares();
