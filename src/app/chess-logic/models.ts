@@ -47,7 +47,7 @@ export enum MoveType {
   Castling,
   Promotion,
   Check,
-  Checkmate,
+  CheckMate,
   BasicMove,
 }
 
@@ -71,3 +71,11 @@ type KingNotChecked = {
 };
 
 export type CheckState = KingChecked | KingNotChecked;
+
+export type MoveList = [string, string?][];
+
+export type GameHistory = {
+  lastMove: LastMove | undefined;
+  checkState: CheckState;
+  board: (FENChar | null)[][];
+}[];
