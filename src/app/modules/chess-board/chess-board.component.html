@@ -39,3 +39,11 @@
 
   <span class="close-promotion-dialog" (click)="closePawnPromotionDialog()"> &times; </span>
 </div>
+
+<app-move-list
+  [moveList]="moveList"
+  [gameHistoryPointer]="gameHistoryPointer"
+  [gameHistoryLength]="gameHistory.length"
+  (showPreviousPositionEvent)="showPreviousPosition($event)"
+>
+</app-move-list>

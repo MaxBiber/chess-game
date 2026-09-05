@@ -397,6 +397,8 @@ export class ChessBoard {
     else if (!moveType.size) moveType.add(MoveType.BasicMove);
 
     this._isGameOver = this.isGameFinished();
+    this.storeMove(promotedPieceType); // ✅ déplacé avant l'incrémentation
+    this.updateGameHistory();
 
     if (this._playerColor === Color.White) this.fullNumberOfMoves++;
     this._boardAsFEN = this.FENConverter.convertBoardToFEN(

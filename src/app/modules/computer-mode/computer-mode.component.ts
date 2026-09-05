@@ -5,9 +5,10 @@ import { StockfishService } from './stockfish.service';
 import { ChessBoardService } from '../chess-board/chess-board.service';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { Color } from '../../chess-logic/models';
+import { MoveListComponent } from '../move-list/move-list';
 
 @Component({
-  imports: [CommonModule],
+  imports: [CommonModule, MoveListComponent],
   selector: 'app-computer-mode',
   styleUrl: '../chess-board/chess-board.component.css',
   templateUrl: '../chess-board/chess-board.component.html',
@@ -20,7 +21,7 @@ export class ComputerModeComponent extends ChessBoardComponent implements OnInit
     super(inject(ChessBoardService));
   }
 
-  public ngOnInit(): void {
+  public override ngOnInit(): void {
     const computerConfiSubscription$: Subscription =
       this.stockfishService.computerConfiguration$.subscribe({
         next: (computerConfiguration) => {
@@ -48,7 +49,7 @@ export class ComputerModeComponent extends ChessBoardComponent implements OnInit
     this.subscription$.add(computerConfiSubscription$);
   }
 
-  public ngOnDestroy(): void {
+  public override ngOnDestroy(): void {
     this.subscription$.unsubscribe();
   }
 }
