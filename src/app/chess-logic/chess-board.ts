@@ -390,15 +390,17 @@ export class ChessBoard {
     this._lastMove = { prevX, prevY, currX: newX, currY: newY, piece, moveType };
     this._playerColor = this._playerColor === Color.White ? Color.Black : Color.White;
     this.isInCheck(this.playerColor, true);
-    this._safeSquares = this.findSafeSquares();
+    // this._safeSquares = this.findSafeSquares();
+    const safeSquares = this.findSafeSquares();
 
     if (this._checkState.isInCheck)
       moveType.add(!this._safeSquares.size ? MoveType.CheckMate : MoveType.Check);
     else if (!moveType.size) moveType.add(MoveType.BasicMove);
 
-    this._isGameOver = this.isGameFinished();
+    //this._isGameOver = this.isGameFinished();
     this.storeMove(promotedPieceType); // ✅ déplacé avant l'incrémentation
     this.updateGameHistory();
+    this._safeSquares = safeSquares;
 
     if (this._playerColor === Color.White) this.fullNumberOfMoves++;
     this._boardAsFEN = this.FENConverter.convertBoardToFEN(
