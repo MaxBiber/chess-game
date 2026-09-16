@@ -13,6 +13,7 @@ import {
   GameHistory,
   LastMove,
   MoveList,
+  MoveType,
   pieceImagePaths,
   SafeSquares,
 } from '../../chess-logic/models';
@@ -203,13 +204,16 @@ export class ChessBoardComponent {
     this.unmarkingPreviouslySelectedAndSafeSquares();
   }
 
-  public move(x: number, y: number): void {
-    this.selectingPiece(x, y);
-    this.placingPiece(x, y);
-  }
   private markLastMoveAndCheckState(lastMove: LastMove | undefined, checkState: CheckState): void {
     this.lastMove = lastMove;
     this.checkState = checkState;
+
+    if (this.lastMove) this.moveSound(this.lastMove.moveType);
+    else this.moveSound(new Set<MoveType>([MoveType.BasicMove]));
+  }
+  public move(x: number, y: number): void {
+    this.selectingPiece(x, y);
+    this.placingPiece(x, y);
   }
 
   private isWrongPieceSelected(piece: FENChar): boolean {
@@ -224,5 +228,17 @@ export class ChessBoardComponent {
     this.chessBoardView = board;
     this.markLastMoveAndCheckState(lastMove, checkState);
     this.gameHistoryPointer = moveIndex;
+  }
+  private moveSound(moveType: Set<MoveType>): void {
+    const moveSound = new Audio('assets/sound/move.mp3');
+
+    if (moveType.has(MoveType.Promotion)) moveSound.src = 'assets/sound/promote.mp3';
+    else if (moveType.has(MoveType.Capture)) moveSound.src = 'assets/sound/capture.mp3';
+    else if (moveType.has(MoveType.Castling)) moveSound.src = 'assets/sound/castling.mp3';
+
+    if (moveType.has(MoveType.CheckMate)) moveSound.src = 'assets/sound/checkmate.mp3';
+    else if (moveType.has(MoveType.Check)) moveSound.src = 'assets/sound/check.mp3';
+
+    moveSound.play();
   }
 }
